@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Termin spotkania – nowy przedmiot w klasie humanistycznej</title>
-<link rel="stylesheet" href="style.css?v=8">
+<link rel="stylesheet" href="style.css?v=9">
 </head>
 <body>
 <main id="app">
@@ -24,9 +24,9 @@
   <h2>Terminy</h2>
   <p class="hint">Zaznacz pola, które Ci pasują. Szare terminy odpadają.</p>
   <section class="quick" id="quick" hidden>
-    <h3>Te terminy pasują już innym</h3>
-    <p class="hint" id="quick-info"></p>
+    <h3>Sugestie</h3>
     <ul id="quick-list"></ul>
+    <p class="hint" id="quick-info"></p>
   </section>
   <div id="grid"></div>
   <div class="picked" id="picked"></div>
@@ -41,8 +41,8 @@
     <button class="submit" id="send">Wyślij</button>
   </div>
 </div>
-<script src="config.js?v=8"></script>
-<script src="grid.js?v=8"></script>
+<script src="config.js?v=9"></script>
+<script src="grid.js?v=9"></script>
 <script>
 document.getElementById('dl').textContent = DEADLINE;
 const picked = new Set();
@@ -93,7 +93,7 @@ fetch(API_URL).then(r => r.json()).then(({ ok, n, counts }) => {
     el.setAttribute('aria-label', `${slotLabel(id)}, może już ${c} ${people(c)}`);
   });
   document.getElementById('quick-info').textContent =
-    `Jeśli któryś pasuje też Tobie, kliknij „Pasuje mi”. W tabeli niżej liczba w polu to ile osób już może.`;
+    `Terminy, które pasują już innym. Te same liczby widzisz w tabeli niżej – im ciemniejsze pole, tym więcej osób może.`;
   const top = vals.sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 3);
   const list = document.getElementById('quick-list');
   top.forEach(([id, c]) => {

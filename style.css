@@ -69,3 +69,4 @@ main { padding-bottom: 7rem; }
 .qbtn { font: inherit; font-size: .9rem; font-weight: 700; min-height: 44px; padding: 0 .9rem; border-radius: 6px; cursor: pointer;
   border: 1px solid var(--pick); background: var(--paper); color: var(--pick); white-space: nowrap; }
 .qbtn[aria-pressed=true] { background: var(--pick); color: var(--on-pick); }
+.quick #quick-info { margin: .5rem 0 0; }
