@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Termin spotkania – nowy przedmiot w klasie humanistycznej</title>
-<link rel="stylesheet" href="style.css?v=6">
+<link rel="stylesheet" href="style.css?v=7">
 </head>
 <body>
 <main id="app">
@@ -18,43 +18,63 @@
   </ul>
 
   <label class="f" for="imie">Imię i nazwisko</label>
-  <input type="text" id="imie" autocomplete="name" maxlength="80">
+  <input type="text" id="imie" autocomplete="name" maxlength="80" aria-describedby="err-imie">
+  <div class="err" id="err-imie" role="alert"></div>
 
   <h2>Terminy</h2>
   <p class="hint">Zaznacz pola, które Ci pasują. Szare terminy odpadają.</p>
-  <p class="others" id="others" hidden></p>
+  <section class="quick" id="quick" hidden>
+    <h3>Najczęściej wybierane</h3>
+    <p class="hint" id="quick-info"></p>
+    <ul id="quick-list"></ul>
+  </section>
   <div id="grid"></div>
   <div class="picked" id="picked"></div>
 
   <label class="f" for="uwagi">Uwagi <span class="hint">(opcjonalnie)</span></label>
   <textarea id="uwagi" maxlength="500" placeholder="Np. inny termin, który mi pasuje"></textarea>
 
-  <div class="err" id="err" role="alert"></div>
-  <button class="submit" id="send">Wyślij odpowiedź</button>
 </main>
-<script src="config.js?v=6"></script>
-<script src="grid.js?v=6"></script>
+<div class="bar">
+  <div class="bar-in">
+    <div class="bar-txt"><span id="count">Nic nie zaznaczono</span><span class="err" id="err" role="alert"></span></div>
+    <button class="submit" id="send">Wyślij</button>
+  </div>
+</div>
+<script src="config.js?v=7"></script>
+<script src="grid.js?v=7"></script>
 <script>
 document.getElementById('dl').textContent = DEADLINE;
 const picked = new Set();
+const err = document.getElementById('err');
 
+const terms = n => n === 1 ? 'termin' : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? 'terminy' : 'terminów';
 const summary = () => {
   const l = [...picked].sort();
   document.getElementById('picked').innerHTML = l.length
-    ? `Zaznaczone (${l.length}): ` + l.map(x => `<span class="chip">${slotLabel(x)}</span>`).join('')
-    : 'Nic nie zaznaczono';
+    ? `Zaznaczone: ` + l.map(x => `<span class="chip">${slotLabel(x)}</span>`).join('')
+    : '';
+  document.getElementById('count').textContent = l.length ? `Zaznaczone: ${l.length} ${terms(l.length)}` : 'Nic nie zaznaczono';
 };
+// Jedno źródło prawdy dla siatki i szybkich wyborów
 const cells = {};
+const quick = {};
+const toggle = (id) => {
+  const on = !picked.has(id);
+  on ? picked.add(id) : picked.delete(id);
+  cells[id].setAttribute('aria-pressed', String(on));
+  if (quick[id]) {
+    quick[id].setAttribute('aria-pressed', String(on));
+    quick[id].textContent = on ? '✓ Pasuje' : 'Pasuje mi';
+  }
+  err.textContent = '';
+  summary();
+};
 renderGrid(document.getElementById('grid'), (id, el) => {
   cells[id] = el;
   el.setAttribute('aria-pressed', 'false');
   el.setAttribute('aria-label', slotLabel(id));
-  el.onclick = () => {
-    const on = !picked.has(id);
-    on ? picked.add(id) : picked.delete(id);
-    el.setAttribute('aria-pressed', String(on));
-    summary();
-  };
+  el.onclick = () => toggle(id);
 });
 summary();
 
@@ -72,20 +92,42 @@ fetch(API_URL).then(r => r.json()).then(({ ok, n, counts }) => {
     el.insertAdjacentHTML('beforeend', `<span class="n">${c}</span>`);
     el.setAttribute('aria-label', `${slotLabel(id)}, może już ${c} ${people(c)}`);
   });
-  const o = document.getElementById('others');
-  o.innerHTML = `<b>Odpowiedzi do tej pory: ${n}.</b> Liczba w polu to ile osób może – im ciemniejsze pole, tym więcej osób.` +
-    (max ? ` Najwięcej osób pasuje w polach z obwódką.` : '');
-  o.hidden = false;
+  document.getElementById('quick-info').textContent =
+    `Odpowiedzi do tej pory: ${n}. Jeśli któryś z tych terminów Ci pasuje, kliknij „Pasuje mi”. ` +
+    `W tabeli niżej liczba w polu to ile osób może – im ciemniejsze pole, tym więcej.`;
+  const top = vals.sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 3);
+  const list = document.getElementById('quick-list');
+  top.forEach(([id, c]) => {
+    const li = document.createElement('li');
+    li.innerHTML = `<span><b>${slotLabel(id)}</b><small>może ${c} z ${n}</small></span>`;
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'qbtn';
+    b.setAttribute('aria-pressed', String(picked.has(id)));
+    b.setAttribute('aria-label', `${slotLabel(id)}: pasuje mi`);
+    b.textContent = picked.has(id) ? '✓ Pasuje' : 'Pasuje mi';
+    b.onclick = () => toggle(id);
+    quick[id] = b;
+    li.appendChild(b);
+    list.appendChild(li);
+  });
+  document.getElementById('quick').hidden = !top.length;
 }).catch(() => {});
 
-const err = document.getElementById('err');
-document.querySelectorAll('input, textarea').forEach(i => i.addEventListener('input', () => err.textContent = ''));
+const errImie = document.getElementById('err-imie');
+document.getElementById('imie').addEventListener('input', () => errImie.textContent = '');
+document.getElementById('uwagi').addEventListener('input', () => err.textContent = '');
 
 document.getElementById('send').onclick = async (ev) => {
   const imie = document.getElementById('imie').value.trim();
   const uwagi = document.getElementById('uwagi').value.trim();
-  if (!imie) return err.textContent = 'Wpisz imię i nazwisko.';
-  if (!picked.size && !uwagi) return err.textContent = 'Zaznacz przynajmniej jeden termin albo napisz w uwagach, kiedy możesz.';
+  if (!imie) {
+    errImie.textContent = 'Wpisz imię i nazwisko.';
+    const f = document.getElementById('imie');
+    f.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return f.focus({ preventScroll: true });
+  }
+  if (!picked.size && !uwagi) return err.textContent = 'Zaznacz termin albo napisz w uwagach.';
 
   const btn = ev.currentTarget;
   btn.disabled = true; btn.textContent = 'Wysyłam…';
@@ -97,13 +139,14 @@ document.getElementById('send').onclick = async (ev) => {
     });
     const data = await res.json();
     if (!data.ok) throw new Error(data.error);
+    document.querySelector('.bar').remove();
     document.getElementById('app').innerHTML =
       `<div class="done"><h1>Dzięki, ${imie.split(' ')[0].replace(/[<>&"]/g, '')}!</h1>
        <p>Odpowiedź zapisana. Termin i link do spotkania wyślę mailem po ${DEADLINE}.</p>
        <p class="hint">Chcesz coś zmienić? <a href="">Wypełnij jeszcze raz</a> – liczy się ostatnia odpowiedź.</p></div>`;
   } catch (e) {
     err.textContent = 'Nie udało się wysłać. Sprawdź internet i spróbuj ponownie.';
-    btn.disabled = false; btn.textContent = 'Wyślij odpowiedź';
+    btn.disabled = false; btn.textContent = 'Wyślij';
   }
 };
 </script>
