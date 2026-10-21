@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Wyniki: termin spotkania</title>
-<link rel="stylesheet" href="style.css?v=9">
+<link rel="stylesheet" href="style.css?v=10">
 <style>
 .stats { display: flex; gap: 2rem; flex-wrap: wrap; margin: 1rem 0; }
 .stats b { display: block; font-size: 1.75rem; line-height: 1.1; }
@@ -28,12 +28,12 @@ td, th { text-align: left; padding: .35rem .5rem; border-bottom: 1px solid var(-
   <div class="stats" id="stats"></div>
   <div id="top"></div>
   <div id="grid"></div>
-  <div id="who">Kliknij komórkę, żeby zobaczyć, kto może, a kto nie.</div>
+  <div id="who" aria-live="polite">Kliknij komórkę, żeby zobaczyć, kto może, a kto nie.</div>
   <h2>Odpowiedzi</h2>
   <div class="scroll"><table id="tbl"></table></div>
 </main>
-<script src="config.js?v=9"></script>
-<script src="grid.js?v=9"></script>
+<script src="config.js?v=10"></script>
+<script src="grid.js?v=10"></script>
 <script>
 const key = new URLSearchParams(location.search).get('key');
 const status = document.getElementById('status');
@@ -48,13 +48,13 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;',
 
   // ostatnia odpowiedź danej osoby wygrywa
   const byPerson = new Map();
-  data.rows.forEach(r => byPerson.set(r.imie.toLowerCase().replace(/\s+/g, ' '), r));
+  data.rows.forEach(r => byPerson.set(r.imie.toLowerCase().replace(/\s+/g, ' ').trim(), r));
   const R = [...byPerson.values()];
   const N = R.length;
   const names = l => l.map(r => esc(r.imie)).join(', ') || 'nikt';
 
   status.textContent = `Aktualizacja: ${new Date().toLocaleString('pl-PL')}. Odśwież stronę, żeby pobrać nowe odpowiedzi.`;
-  document.getElementById('stats').innerHTML = `<div><b>${N}/${TOTAL}</b><span>odpowiedzi</span></div>`;
+  document.getElementById('stats').innerHTML = `<div><b${N > TOTAL ? ' style="color:var(--err)" title="Więcej odpowiedzi niż osób – ktoś wpisał się dwa razy pod inną nazwą?"' : ''}>${N}/${TOTAL}</b><span>odpowiedzi</span></div>`;
   if (!N) return;
 
   const cells = [];
@@ -70,6 +70,7 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;',
       document.getElementById('who').innerHTML =
         `<b>${slotLabel(id)}: ${yes.length}/${N}</b><br>
          Mogą: ${names(yes)}<br>Nie mogą: ${names(R.filter(r => !yes.includes(r)))}`;
+      document.getElementById('who').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     };
     cells.push({ id, el, yes });
   });

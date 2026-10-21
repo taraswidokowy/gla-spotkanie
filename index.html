@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Termin spotkania – nowy przedmiot w klasie humanistycznej</title>
-<link rel="stylesheet" href="style.css?v=9">
+<link rel="stylesheet" href="style.css?v=10">
 </head>
 <body>
 <main id="app">
@@ -41,10 +41,13 @@
     <button class="submit" id="send">Wyślij</button>
   </div>
 </div>
-<script src="config.js?v=9"></script>
-<script src="grid.js?v=9"></script>
+<script src="config.js?v=10"></script>
+<script src="grid.js?v=10"></script>
 <script>
 document.getElementById('dl').textContent = DEADLINE;
+// Ostatnio wysłane terminy z tej przeglądarki – żeby poprawka nie kasowała wcześniejszych
+const store = { get: () => { try { return JSON.parse(localStorage.getItem('spotkanie') || 'null'); } catch { return null; } },
+  set: (v) => { try { localStorage.setItem('spotkanie', JSON.stringify(v)); } catch {} } };
 const picked = new Set();
 const err = document.getElementById('err');
 
@@ -76,6 +79,12 @@ renderGrid(document.getElementById('grid'), (id, el) => {
   el.setAttribute('aria-label', slotLabel(id));
   el.onclick = () => toggle(id);
 });
+const prev = store.get();
+if (prev) {
+  document.getElementById('imie').value = prev.imie || '';
+  document.getElementById('uwagi').value = prev.uwagi || '';
+  (prev.terminy || []).forEach(id => cells[id] && toggle(id));
+}
 summary();
 
 // Podpowiedź: ile osób już może w danym terminie (same liczby, bez nazwisk)
@@ -138,11 +147,15 @@ document.getElementById('send').onclick = async (ev) => {
     });
     const data = await res.json();
     if (!data.ok) throw new Error(data.error);
+    store.set({ imie, uwagi, terminy: [...picked] });
     document.querySelector('.bar').remove();
     document.getElementById('app').innerHTML =
-      `<div class="done"><h1>Dzięki, ${imie.split(' ')[0].replace(/[<>&"]/g, '')}!</h1>
+      `<div class="done"><h1 tabindex="-1"></h1>
        <p>Odpowiedź zapisana. Termin i link do spotkania wyślę mailem po ${DEADLINE}.</p>
-       <p class="hint">Chcesz coś zmienić? <a href="">Wypełnij jeszcze raz</a> – liczy się ostatnia odpowiedź.</p></div>`;
+       <p class="hint">Chcesz coś zmienić? <a href="">Popraw odpowiedź</a> – Twoje zaznaczenia zostaną.</p></div>`;
+    const h = document.querySelector('.done h1');
+    h.textContent = `Dzięki, ${imie.split(' ')[0]}!`;
+    h.focus();
   } catch (e) {
     err.textContent = 'Nie udało się wysłać. Sprawdź internet i spróbuj ponownie.';
     btn.disabled = false; btn.textContent = 'Wyślij';
