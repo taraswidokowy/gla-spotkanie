@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Termin spotkania – nowy przedmiot w klasie humanistycznej</title>
-<link rel="stylesheet" href="style.css?v=7">
+<link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
 <main id="app">
@@ -24,7 +24,7 @@
   <h2>Terminy</h2>
   <p class="hint">Zaznacz pola, które Ci pasują. Szare terminy odpadają.</p>
   <section class="quick" id="quick" hidden>
-    <h3>Najczęściej wybierane</h3>
+    <h3>Te terminy pasują już innym</h3>
     <p class="hint" id="quick-info"></p>
     <ul id="quick-list"></ul>
   </section>
@@ -41,8 +41,8 @@
     <button class="submit" id="send">Wyślij</button>
   </div>
 </div>
-<script src="config.js?v=7"></script>
-<script src="grid.js?v=7"></script>
+<script src="config.js?v=8"></script>
+<script src="grid.js?v=8"></script>
 <script>
 document.getElementById('dl').textContent = DEADLINE;
 const picked = new Set();
@@ -93,13 +93,12 @@ fetch(API_URL).then(r => r.json()).then(({ ok, n, counts }) => {
     el.setAttribute('aria-label', `${slotLabel(id)}, może już ${c} ${people(c)}`);
   });
   document.getElementById('quick-info').textContent =
-    `Odpowiedzi do tej pory: ${n}. Jeśli któryś z tych terminów Ci pasuje, kliknij „Pasuje mi”. ` +
-    `W tabeli niżej liczba w polu to ile osób może – im ciemniejsze pole, tym więcej.`;
+    `Jeśli któryś pasuje też Tobie, kliknij „Pasuje mi”. W tabeli niżej liczba w polu to ile osób już może.`;
   const top = vals.sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 3);
   const list = document.getElementById('quick-list');
   top.forEach(([id, c]) => {
     const li = document.createElement('li');
-    li.innerHTML = `<span><b>${slotLabel(id)}</b><small>może ${c} z ${n}</small></span>`;
+    li.innerHTML = `<span><b>${slotLabel(id)}</b><small>${c === n ? `pasuje wszystkim (${c})` : `pasuje ${c} z ${n}`}</small></span>`;
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'qbtn';
