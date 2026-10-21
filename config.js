@@ -15,6 +15,8 @@ const OFF = {
 // Wyłączone godziny w konkretnym dniu
 const OFF_DATES = {
   '2026-10-27': ['11:00', '12:00', '13:00', '14:00', '15:00', '16:00'],
+  '2026-11-03': ['12:00', '13:00', '14:00', '15:00', '16:00'],
+  '2026-11-05': ['14:00', '15:00'],
 };
 // Dni robocze między FROM a TO (włącznie), bez dat z SKIP.
 const FROM = '2026-10-26';
