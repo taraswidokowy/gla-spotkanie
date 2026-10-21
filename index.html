@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Termin spotkania – nowy przedmiot w klasie humanistycznej</title>
-<link rel="stylesheet" href="style.css?v=12">
+<link rel="stylesheet" href="style.css?v=13">
 </head>
 <body>
 <main id="app">
@@ -41,8 +41,8 @@
     <button class="submit" id="send">Wyślij</button>
   </div>
 </div>
-<script src="config.js?v=12"></script>
-<script src="grid.js?v=12"></script>
+<script src="config.js?v=13"></script>
+<script src="grid.js?v=13"></script>
 <script>
 document.getElementById('dl').textContent = DEADLINE;
 // Ostatnio wysłane terminy z tej przeglądarki – żeby poprawka nie kasowała wcześniejszych
@@ -87,7 +87,7 @@ if (prev) {
 }
 summary();
 
-// Podpowiedź: ile osób już może w danym terminie (same liczby, bez nazwisk)
+// Podpowiedź: ilu osobom pasuje dany termin (same liczby, bez nazwisk)
 const people = n => n === 1 ? 'osoba' : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? 'osoby' : 'osób';
 fetch(API_URL).then(r => r.json()).then(({ ok, n, counts }) => {
   if (!ok || !n) return;
@@ -99,15 +99,15 @@ fetch(API_URL).then(r => r.json()).then(({ ok, n, counts }) => {
     if (c === max) el.classList.add('top');
     el.style.setProperty('--heat', `${Math.round(12 + c / n * 38)}%`);
     el.insertAdjacentHTML('beforeend', `<span class="n">${c}</span>`);
-    el.setAttribute('aria-label', `${slotLabel(id)}, może już ${c} ${people(c)}`);
+    el.setAttribute('aria-label', `${slotLabel(id)}, wybrane przez: ${c}`);
   });
   document.getElementById('quick-info').textContent =
-    `Te terminy wybrali już inni. W tabeli niżej liczba w polu pokazuje, ile osób może w danym terminie.`;
+    `Te terminy wybrali już inni. Liczba w każdym polu tabeli poniżej oznacza, ilu osobom dany termin pasuje.`;
   const top = vals.sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 3);
   const list = document.getElementById('quick-list');
   top.forEach(([id, c]) => {
     const li = document.createElement('li');
-    li.innerHTML = `<span><b>${slotLabel(id)}</b><small>${c === n ? `pasuje wszystkim (${c})` : `pasuje ${c} z ${n}`}</small></span>`;
+    li.innerHTML = `<span><b>${slotLabel(id)}</b><small>${c === n ? `pasuje wszystkim (${c})` : `wybrane przez ${c} z ${n} osób`}</small></span>`;
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'qbtn';
