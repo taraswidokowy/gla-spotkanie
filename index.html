@@ -10,14 +10,15 @@
 <body>
 <main id="app">
   <h1>Kiedy możesz się spotkać?</h1>
-  <p class="lead">Spotkanie online (ok. 1 godz.) o nowym przedmiocie w klasie humanistycznej.
+  <p class="lead">Krótkie spotkanie online o nowym przedmiocie w klasie humanistycznej.
     Zaznacz wszystkie terminy, które Ci pasują. Odpowiedzi zbieram do <span id="dl"></span>.</p>
+  <p class="hint">Spokojnie, nie zajmie całej godziny. Godzina w ankiecie to tylko okienko w kalendarzu z zapasem.</p>
 
   <label class="f" for="imie">Imię i nazwisko</label>
   <input type="text" id="imie" autocomplete="name" maxlength="80">
 
   <h2>Terminy</h2>
-  <p class="hint">Kliknij pole, żeby zaznaczyć. Godzina to początek i koniec spotkania.</p>
+  <p class="hint">Kliknij pole, żeby zaznaczyć. Spotkanie zacznie się o pełnej godzinie i skończy przed jej upływem.</p>
   <div id="grid"></div>
   <div class="picked" id="picked"></div>
 
