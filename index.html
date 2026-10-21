@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Termin spotkania – nowy przedmiot w klasie humanistycznej</title>
-<link rel="stylesheet" href="style.css?v=11">
+<link rel="stylesheet" href="style.css?v=12">
 </head>
 <body>
 <main id="app">
@@ -41,8 +41,8 @@
     <button class="submit" id="send">Wyślij</button>
   </div>
 </div>
-<script src="config.js?v=11"></script>
-<script src="grid.js?v=11"></script>
+<script src="config.js?v=12"></script>
+<script src="grid.js?v=12"></script>
 <script>
 document.getElementById('dl').textContent = DEADLINE;
 // Ostatnio wysłane terminy z tej przeglądarki – żeby poprawka nie kasowała wcześniejszych
@@ -102,7 +102,7 @@ fetch(API_URL).then(r => r.json()).then(({ ok, n, counts }) => {
     el.setAttribute('aria-label', `${slotLabel(id)}, może już ${c} ${people(c)}`);
   });
   document.getElementById('quick-info').textContent =
-    `Terminy, które pasują już innym. Te same liczby widzisz w tabeli niżej – im ciemniejsze pole, tym więcej osób może.`;
+    `Te terminy wybrali już inni. W tabeli niżej liczba w polu pokazuje, ile osób może w danym terminie.`;
   const top = vals.sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 3);
   const list = document.getElementById('quick-list');
   top.forEach(([id, c]) => {
