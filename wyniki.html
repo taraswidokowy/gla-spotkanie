@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Wyniki: termin spotkania</title>
-<link rel="stylesheet" href="style.css?v=13">
+<link rel="stylesheet" href="style.css?v=14">
 <style>
 .stats { display: flex; gap: 2rem; flex-wrap: wrap; margin: 1rem 0; }
 .stats b { display: block; font-size: 1.75rem; line-height: 1.1; }
@@ -28,12 +28,12 @@ td, th { text-align: left; padding: .35rem .5rem; border-bottom: 1px solid var(-
   <div class="stats" id="stats"></div>
   <div id="top"></div>
   <div id="grid"></div>
-  <div id="who" aria-live="polite">Kliknij pole, żeby zobaczyć, komu termin pasuje, a komu nie.</div>
+  <div id="who" aria-live="polite">Kliknij pole, żeby zobaczyć, komu termin odpowiada, a komu nie.</div>
   <h2>Odpowiedzi</h2>
   <div class="scroll"><table id="tbl"></table></div>
 </main>
-<script src="config.js?v=13"></script>
-<script src="grid.js?v=13"></script>
+<script src="config.js?v=14"></script>
+<script src="grid.js?v=14"></script>
 <script>
 const key = new URLSearchParams(location.search).get('key');
 const status = document.getElementById('status');
@@ -69,7 +69,7 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;',
     el.onclick = () => {
       document.getElementById('who').innerHTML =
         `<b>${slotLabel(id)}: ${yes.length}/${N}</b><br>
-         Pasuje: ${names(yes)}<br>Nie pasuje: ${names(R.filter(r => !yes.includes(r)))}`;
+         Odpowiada: ${names(yes)}<br>Nie odpowiada: ${names(R.filter(r => !yes.includes(r)))}`;
       document.getElementById('who').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     };
     cells.push({ id, el, yes });
@@ -81,7 +81,7 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;',
   if (top.length) document.getElementById('top').innerHTML = '<h2>Najlepsze terminy</h2><ol>' +
     top.map(c => {
       const no = R.filter(r => !c.yes.includes(r));
-      return `<li><b>${slotLabel(c.id)}</b>: ${c.yes.length}/${N}${no.length ? ` · nie pasuje: ${names(no)}` : ' · pasuje wszystkim'}</li>`;
+      return `<li><b>${slotLabel(c.id)}</b>: ${c.yes.length}/${N}${no.length ? ` · nie odpowiada: ${names(no)}` : ' · odpowiada wszystkim'}</li>`;
     }).join('') + '</ol>';
 
   document.getElementById('tbl').innerHTML = '<tr><th>Kto</th><th>Terminy</th><th>Uwagi</th></tr>' +

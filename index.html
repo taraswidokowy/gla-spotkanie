@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Termin spotkania – nowy przedmiot w klasie humanistycznej</title>
-<link rel="stylesheet" href="style.css?v=13">
+<link rel="stylesheet" href="style.css?v=14">
 </head>
 <body>
 <main id="app">
   <h1>Kiedy możesz się spotkać?</h1>
   <p class="lead">Umawiamy pierwsze spotkanie online w sprawie nowego przedmiotu w klasie humanistycznej.
-    Zaznacz wszystkie terminy, które Ci pasują – im więcej, tym łatwiej znaleźć wspólny.</p>
+    Zaznacz wszystkie terminy, które Ci odpowiadają – im więcej, tym łatwiej znaleźć wspólny.</p>
   <ul class="facts">
     <li><b>Krócej niż godzinę.</b> Godzinne okienka w ankiecie to tylko zapas w kalendarzu.</li>
     <li><b>Odpowiedz do <span id="dl"></span>.</b> Potem wyślę termin i link do spotkania.</li>
@@ -22,7 +22,7 @@
   <div class="err" id="err-imie" role="alert"></div>
 
   <h2>Terminy</h2>
-  <p class="hint">Zaznacz pola, które Ci pasują. Szare terminy odpadają.</p>
+  <p class="hint">Zaznacz pola, które Ci odpowiadają. Szare terminy odpadają.</p>
   <section class="quick" id="quick" hidden>
     <h3>Sugestie</h3>
     <ul id="quick-list"></ul>
@@ -32,7 +32,7 @@
   <div class="picked" id="picked"></div>
 
   <label class="f" for="uwagi">Uwagi <span class="hint">(opcjonalnie)</span></label>
-  <textarea id="uwagi" maxlength="500" placeholder="Np. inny termin, który mi pasuje"></textarea>
+  <textarea id="uwagi" maxlength="500" placeholder="Np. inny termin, który mi odpowiada"></textarea>
 
 </main>
 <div class="bar">
@@ -41,8 +41,8 @@
     <button class="submit" id="send">Wyślij</button>
   </div>
 </div>
-<script src="config.js?v=13"></script>
-<script src="grid.js?v=13"></script>
+<script src="config.js?v=14"></script>
+<script src="grid.js?v=14"></script>
 <script>
 document.getElementById('dl').textContent = DEADLINE;
 // Ostatnio wysłane terminy z tej przeglądarki – żeby poprawka nie kasowała wcześniejszych
@@ -68,7 +68,7 @@ const toggle = (id) => {
   cells[id].setAttribute('aria-pressed', String(on));
   if (quick[id]) {
     quick[id].setAttribute('aria-pressed', String(on));
-    quick[id].textContent = on ? '✓ Pasuje' : 'Pasuje mi';
+    quick[id].textContent = on ? '✓ Odpowiada' : 'Odpowiada mi';
   }
   err.textContent = '';
   summary();
@@ -87,7 +87,7 @@ if (prev) {
 }
 summary();
 
-// Podpowiedź: ilu osobom pasuje dany termin (same liczby, bez nazwisk)
+// Podpowiedź: ilu osobom odpowiada dany termin (same liczby, bez nazwisk)
 const people = n => n === 1 ? 'osoba' : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? 'osoby' : 'osób';
 fetch(API_URL).then(r => r.json()).then(({ ok, n, counts }) => {
   if (!ok || !n) return;
@@ -102,18 +102,18 @@ fetch(API_URL).then(r => r.json()).then(({ ok, n, counts }) => {
     el.setAttribute('aria-label', `${slotLabel(id)}, wybrane przez: ${c}`);
   });
   document.getElementById('quick-info').textContent =
-    `Te terminy wybrali już inni. Liczba w każdym polu tabeli poniżej oznacza, ilu osobom dany termin pasuje.`;
+    `Te terminy wybrali już inni. Liczba w każdym polu tabeli poniżej oznacza, ilu osobom dany termin odpowiada.`;
   const top = vals.sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 3);
   const list = document.getElementById('quick-list');
   top.forEach(([id, c]) => {
     const li = document.createElement('li');
-    li.innerHTML = `<span><b>${slotLabel(id)}</b><small>${c === n ? `pasuje wszystkim (${c})` : `wybrane przez ${c} z ${n} osób`}</small></span>`;
+    li.innerHTML = `<span><b>${slotLabel(id)}</b><small>${c === n ? `odpowiada wszystkim (${c})` : `wybrane przez ${c} z ${n} osób`}</small></span>`;
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'qbtn';
     b.setAttribute('aria-pressed', String(picked.has(id)));
-    b.setAttribute('aria-label', `${slotLabel(id)}: pasuje mi`);
-    b.textContent = picked.has(id) ? '✓ Pasuje' : 'Pasuje mi';
+    b.setAttribute('aria-label', `${slotLabel(id)}: odpowiada mi`);
+    b.textContent = picked.has(id) ? '✓ Odpowiada' : 'Odpowiada mi';
     b.onclick = () => toggle(id);
     quick[id] = b;
     li.appendChild(b);
