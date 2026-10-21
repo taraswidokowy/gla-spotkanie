@@ -4,12 +4,17 @@ const TOTAL = 5;
 const DEADLINE = 'niedzieli 25 października';
 
 // Spotkanie online, 1 godzina. Godzina = początek spotkania.
-const HOURS = ['15:00', '16:00', '17:00', '18:00', '19:00'];
-// Wyłączone godziny w danym dniu tygodnia (co tydzień): Wt, Śr, Czw
+const HOURS = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'];
+// Wyłączone godziny w danym dniu tygodnia (co tydzień)
 const OFF = {
   'wt': ['17:00', '18:00', '19:00'],
   'śr': ['16:00', '17:00', '18:00'],
-  'czw': ['17:00', '18:00', '19:00'],
+  'czw': ['09:00', '10:00', '11:00', '17:00', '18:00', '19:00'],
+  'pt': ['09:00', '10:00', '11:00'],
+};
+// Wyłączone godziny w konkretnym dniu
+const OFF_DATES = {
+  '2026-10-27': ['11:00', '12:00', '13:00', '14:00', '15:00', '16:00'],
 };
 // Dni robocze między FROM a TO (włącznie), bez dat z SKIP.
 const FROM = '2026-10-26';

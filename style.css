@@ -25,6 +25,9 @@ textarea { min-height: 4.5rem; resize: vertical; }
 .hd { font-size: .75rem; color: var(--muted); text-align: center; line-height: 1.25; padding-bottom: 2px; }
 .day { font-weight: 700; display: flex; align-items: baseline; gap: .35rem; }
 .day small { font-weight: 400; color: var(--muted); font-size: .8rem; }
+.hd.day { color: var(--ink); font-size: .95rem; flex-direction: column; align-items: center; gap: 0; line-height: 1.2; }
+.hour { display: flex; flex-direction: column; justify-content: center; font-weight: 700; line-height: 1.15; }
+.hour small { font-weight: 400; color: var(--muted); font-size: .75rem; }
 .slot { height: 44px; border-radius: 6px; font: inherit; background: var(--paper); border: 1px solid var(--muted);
   cursor: pointer; color: var(--muted); font-size: 1.2rem; }
 .slot::before { content: '+'; }

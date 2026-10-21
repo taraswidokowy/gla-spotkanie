@@ -4,6 +4,8 @@ const MONTHS = ['stycznia', 'lutego', 'marca', 'kwietnia', 'maja', 'czerwca', 'l
 const pad = (n) => String(n).padStart(2, '0');
 const iso = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 const endOf = (h) => `${pad(+h.split(':')[0] + 1)}:${h.split(':')[1]}`;
+const short = (h) => h.replace(/^0/, '');
+const isOff = (d, t) => (OFF[WD[d.getDay()]] || []).includes(t) || (OFF_DATES[iso(d)] || []).includes(t);
 
 // Dni robocze z config.js, pogrupowane w tygodnie
 function weeks() {
@@ -21,10 +23,10 @@ function weeks() {
 function slotLabel(id) {
   const [date, h] = id.split(' ');
   const d = new Date(date + 'T12:00');
-  return `${WD[d.getDay()]} ${d.getDate()}.${pad(d.getMonth() + 1)}, ${h}–${endOf(h)}`;
+  return `${WD[d.getDay()]} ${d.getDate()}.${pad(d.getMonth() + 1)}, ${short(h)}–${short(endOf(h))}`;
 }
 
-// Rysuje siatkę dni × godzin, tydzień po tygodniu. cell(slotId, el) dla każdej komórki.
+// Rysuje siatkę godzin (wiersze) × dni (kolumny), tydzień po tygodniu. cell(slotId, el) dla każdej aktywnej komórki.
 function renderGrid(container, cell) {
   weeks().forEach((w) => {
     const a = w[0], b = w[w.length - 1];
@@ -36,21 +38,21 @@ function renderGrid(container, cell) {
 
     const g = document.createElement('div');
     g.className = 'grid';
-    g.style.gridTemplateColumns = `4.2rem repeat(${HOURS.length}, minmax(0,1fr))`;
+    g.style.gridTemplateColumns = `3.4rem repeat(${w.length}, minmax(0,1fr))`;
     g.appendChild(document.createElement('div'));
-    HOURS.forEach((t) => {
+    w.forEach((d) => {
       const hd = document.createElement('div');
-      hd.className = 'hd';
-      hd.innerHTML = `${t}<br>${endOf(t)}`;
+      hd.className = 'hd day';
+      hd.innerHTML = `${WD[d.getDay()]}<small>${d.getDate()}.${pad(d.getMonth() + 1)}</small>`;
       g.appendChild(hd);
     });
-    w.forEach((d) => {
+    HOURS.forEach((t) => {
       const lab = document.createElement('div');
-      lab.className = 'day';
-      lab.innerHTML = `${WD[d.getDay()]}<small>${d.getDate()}.${pad(d.getMonth() + 1)}</small>`;
+      lab.className = 'hour';
+      lab.innerHTML = `${short(t)}<small>–${short(endOf(t))}</small>`;
       g.appendChild(lab);
-      HOURS.forEach((t) => {
-        if ((OFF[WD[d.getDay()]] || []).includes(t)) {
+      w.forEach((d) => {
+        if (isOff(d, t)) {
           const off = document.createElement('div');
           off.className = 'slot off';
           off.setAttribute('aria-hidden', 'true');
