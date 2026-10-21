@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Wyniki: termin spotkania</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.stats { display: flex; gap: 2rem; flex-wrap: wrap; margin: 1rem 0; }
+.stats b { display: block; font-size: 1.75rem; line-height: 1.1; }
+.stats span { color: var(--muted); font-size: .9rem; }
+.slot.heat { color: var(--ink); font-size: 1rem; font-weight: 700; }
+.slot.heat::before { content: none; }
+.slot.dark { color: var(--on-pick); }
+.slot.best { outline: 3px solid var(--ink); outline-offset: 1px; }
+#who { margin-top: 1rem; padding: 1rem; border: 1px solid var(--line); border-radius: 8px; min-height: 4rem; }
+ol { padding-left: 1.25rem; } li { margin-bottom: .35rem; }
+table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+td, th { text-align: left; padding: .35rem .5rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+.scroll { overflow-x: auto; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Termin spotkania: wyniki</h1>
+  <p class="lead" id="status">Ładuję…</p>
+  <div class="stats" id="stats"></div>
+  <div id="top"></div>
+  <div id="grid"></div>
+  <div id="who">Kliknij komórkę, żeby zobaczyć, kto może, a kto nie.</div>
+  <h2>Odpowiedzi</h2>
+  <div class="scroll"><table id="tbl"></table></div>
+</main>
+<script src="config.js"></script>
+<script src="grid.js"></script>
+<script>
+const key = new URLSearchParams(location.search).get('key');
+const status = document.getElementById('status');
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+(async () => {
+  if (!key) return status.textContent = 'Brak klucza w linku (…/wyniki.html?key=…).';
+  let data;
+  try { data = await (await fetch(`${API_URL}?key=${encodeURIComponent(key)}`)).json(); }
+  catch { return status.textContent = 'Nie udało się pobrać danych.'; }
+  if (!data.ok) return status.textContent = 'Zły klucz.';
+
+  // ostatnia odpowiedź danej osoby wygrywa
+  const byPerson = new Map();
+  data.rows.forEach(r => byPerson.set(r.imie.toLowerCase().replace(/\s+/g, ' '), r));
+  const R = [...byPerson.values()];
+  const N = R.length;
+  const names = l => l.map(r => esc(r.imie)).join(', ') || 'nikt';
+
+  status.textContent = `Aktualizacja: ${new Date().toLocaleString('pl-PL')}. Odśwież stronę, żeby pobrać nowe odpowiedzi.`;
+  document.getElementById('stats').innerHTML = `<div><b>${N}/${TOTAL}</b><span>odpowiedzi</span></div>`;
+  if (!N) return;
+
+  const cells = [];
+  renderGrid(document.getElementById('grid'), (id, el) => {
+    const yes = R.filter(r => r.terminy.includes(id));
+    const p = Math.round(yes.length / N * 90);
+    el.classList.add('heat');
+    if (p > 50) el.classList.add('dark');
+    el.style.background = `color-mix(in srgb, var(--pick) ${p}%, var(--paper))`;
+    el.textContent = yes.length;
+    el.setAttribute('aria-label', `${slotLabel(id)}: ${yes.length} z ${N}`);
+    el.onclick = () => {
+      document.getElementById('who').innerHTML =
+        `<b>${slotLabel(id)}: ${yes.length}/${N}</b><br>
+         Mogą: ${names(yes)}<br>Nie mogą: ${names(R.filter(r => !yes.includes(r)))}`;
+    };
+    cells.push({ id, el, yes });
+  });
+  const max = Math.max(...cells.map(c => c.yes.length));
+  if (max > 0) cells.forEach(c => c.yes.length === max && c.el.classList.add('best'));
+
+  const top = cells.filter(c => c.yes.length).sort((a, b) => b.yes.length - a.yes.length || a.id.localeCompare(b.id)).slice(0, 5);
+  if (top.length) document.getElementById('top').innerHTML = '<h2>Najlepsze terminy</h2><ol>' +
+    top.map(c => {
+      const no = R.filter(r => !c.yes.includes(r));
+      return `<li><b>${slotLabel(c.id)}</b>: ${c.yes.length}/${N}${no.length ? ` · nie mogą: ${names(no)}` : ' · wszyscy'}</li>`;
+    }).join('') + '</ol>';
+
+  document.getElementById('tbl').innerHTML = '<tr><th>Kto</th><th>Terminy</th><th>Uwagi</th></tr>' +
+    R.map(r => `<tr><td>${esc(r.imie)}</td><td>${r.terminy.length}</td><td>${esc(r.uwagi)}</td></tr>`).join('');
+})();
+</script>
+</body>
+</html>

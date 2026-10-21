@@ -1,0 +1,8 @@
+# Tylko frontend trafia do repo
+*
+!.gitignore
+!index.html
+!wyniki.html
+!config.js
+!grid.js
+!style.css

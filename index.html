@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Spotkanie: nowy przedmiot w klasie humanistycznej</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main id="app">
+  <h1>Kiedy możesz się spotkać?</h1>
+  <p class="lead">Spotkanie online (ok. 1 godz.) o nowym przedmiocie w klasie humanistycznej.
+    Zaznacz wszystkie terminy, które Ci pasują. Odpowiedzi zbieram do <span id="dl"></span>.</p>
+
+  <label class="f" for="imie">Imię i nazwisko</label>
+  <input type="text" id="imie" autocomplete="name" maxlength="80">
+
+  <h2>Terminy</h2>
+  <p class="hint">Kliknij pole, żeby zaznaczyć. Godzina to początek i koniec spotkania.</p>
+  <div id="grid"></div>
+  <div class="picked" id="picked"></div>
+
+  <label class="f" for="uwagi">Uwagi <span class="hint">(opcjonalnie)</span></label>
+  <textarea id="uwagi" maxlength="500" placeholder="Np. inna godzina, która mi pasuje"></textarea>
+
+  <div class="err" id="err" role="alert"></div>
+  <button class="submit" id="send">Wyślij odpowiedź</button>
+</main>
+<script src="config.js"></script>
+<script src="grid.js"></script>
+<script>
+document.getElementById('dl').textContent = DEADLINE;
+const picked = new Set();
+
+const summary = () => {
+  const l = [...picked].sort();
+  document.getElementById('picked').innerHTML = l.length
+    ? `Zaznaczone (${l.length}): ` + l.map(x => `<span class="chip">${slotLabel(x)}</span>`).join('')
+    : 'Nic nie zaznaczono';
+};
+renderGrid(document.getElementById('grid'), (id, el) => {
+  el.setAttribute('aria-pressed', 'false');
+  el.setAttribute('aria-label', slotLabel(id));
+  el.onclick = () => {
+    const on = !picked.has(id);
+    on ? picked.add(id) : picked.delete(id);
+    el.setAttribute('aria-pressed', String(on));
+    summary();
+  };
+});
+summary();
+
+const err = document.getElementById('err');
+document.querySelectorAll('input, textarea').forEach(i => i.addEventListener('input', () => err.textContent = ''));
+
+document.getElementById('send').onclick = async (ev) => {
+  const imie = document.getElementById('imie').value.trim();
+  const uwagi = document.getElementById('uwagi').value.trim();
+  if (!imie) return err.textContent = 'Wpisz imię i nazwisko.';
+  if (!picked.size && !uwagi) return err.textContent = 'Zaznacz przynajmniej jeden termin albo napisz w uwagach, kiedy możesz.';
+
+  const btn = ev.currentTarget;
+  btn.disabled = true; btn.textContent = 'Wysyłam…';
+  try {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ imie, terminy: [...picked].sort(), uwagi }),
+    });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error);
+    document.getElementById('app').innerHTML =
+      `<div class="done"><h1>Dzięki, ${imie.split(' ')[0].replace(/[<>&"]/g, '')}!</h1>
+       <p>Odpowiedź zapisana. Termin spotkania podam mailem po ${DEADLINE}.</p>
+       <p class="hint">Chcesz coś zmienić? Wypełnij jeszcze raz – liczy się ostatnia odpowiedź.</p></div>`;
+  } catch (e) {
+    err.textContent = 'Nie udało się wysłać. Sprawdź internet i spróbuj ponownie.';
+    btn.disabled = false; btn.textContent = 'Wyślij odpowiedź';
+  }
+};
+</script>
+</body>
+</html>
