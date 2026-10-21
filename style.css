@@ -29,6 +29,8 @@ textarea { min-height: 4.5rem; resize: vertical; }
   cursor: pointer; color: var(--muted); font-size: 1.2rem; }
 .slot::before { content: '+'; }
 .slot:hover { background: var(--pick-soft); }
+.slot.off { background: var(--band); border-color: var(--line); cursor: default; opacity: .45; }
+.slot.off::before { content: none; }
 .slot[aria-pressed=true] { background: var(--pick); border-color: var(--pick); color: var(--on-pick); }
 .slot[aria-pressed=true]::before { content: '✓'; }
 .picked { font-size: .9rem; color: var(--muted); min-height: 1.5rem; margin-top: .75rem; }

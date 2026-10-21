@@ -50,6 +50,12 @@ function renderGrid(container, cell) {
       lab.innerHTML = `${WD[d.getDay()]}<small>${d.getDate()}.${pad(d.getMonth() + 1)}</small>`;
       g.appendChild(lab);
       HOURS.forEach((t) => {
+        if ((OFF[WD[d.getDay()]] || []).includes(t)) {
+          const off = document.createElement('div');
+          off.className = 'slot off';
+          off.setAttribute('aria-hidden', 'true');
+          return g.appendChild(off);
+        }
         const el = document.createElement('button');
         el.type = 'button';
         el.className = 'slot';
