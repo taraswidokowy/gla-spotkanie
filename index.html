@@ -4,32 +4,35 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Spotkanie: nowy przedmiot w klasie humanistycznej</title>
-<link rel="stylesheet" href="style.css?v=4">
+<title>Termin spotkania – nowy przedmiot w klasie humanistycznej</title>
+<link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
 <main id="app">
   <h1>Kiedy możesz się spotkać?</h1>
-  <p class="lead">Krótkie spotkanie online o nowym przedmiocie w klasie humanistycznej.
-    Zaznacz wszystkie terminy, które Ci pasują. Odpowiedzi zbieram do <span id="dl"></span>.</p>
-  <p class="hint">Spokojnie, nie zajmie całej godziny. Godzina w ankiecie to tylko okienko w kalendarzu z zapasem.</p>
+  <p class="lead">Umawiamy pierwsze spotkanie online w sprawie nowego przedmiotu w klasie humanistycznej.
+    Zaznacz wszystkie terminy, które Ci pasują – im więcej, tym łatwiej znaleźć wspólny.</p>
+  <ul class="facts">
+    <li><b>Krócej niż godzinę.</b> Godzinne okienka w ankiecie to tylko zapas w kalendarzu.</li>
+    <li><b>Odpowiedz do <span id="dl"></span>.</b> Potem wyślę termin i link do spotkania.</li>
+  </ul>
 
   <label class="f" for="imie">Imię i nazwisko</label>
   <input type="text" id="imie" autocomplete="name" maxlength="80">
 
   <h2>Terminy</h2>
-  <p class="hint">Kliknij pole, żeby zaznaczyć. Spotkanie zacznie się o pełnej godzinie i skończy przed jej upływem.</p>
+  <p class="hint">Zaznacz pola, które Ci pasują. Szare terminy odpadają.</p>
   <div id="grid"></div>
   <div class="picked" id="picked"></div>
 
   <label class="f" for="uwagi">Uwagi <span class="hint">(opcjonalnie)</span></label>
-  <textarea id="uwagi" maxlength="500" placeholder="Np. inna godzina, która mi pasuje"></textarea>
+  <textarea id="uwagi" maxlength="500" placeholder="Np. inny termin, który mi pasuje"></textarea>
 
   <div class="err" id="err" role="alert"></div>
   <button class="submit" id="send">Wyślij odpowiedź</button>
 </main>
-<script src="config.js?v=4"></script>
-<script src="grid.js?v=4"></script>
+<script src="config.js?v=5"></script>
+<script src="grid.js?v=5"></script>
 <script>
 document.getElementById('dl').textContent = DEADLINE;
 const picked = new Set();
@@ -73,8 +76,8 @@ document.getElementById('send').onclick = async (ev) => {
     if (!data.ok) throw new Error(data.error);
     document.getElementById('app').innerHTML =
       `<div class="done"><h1>Dzięki, ${imie.split(' ')[0].replace(/[<>&"]/g, '')}!</h1>
-       <p>Odpowiedź zapisana. Termin spotkania podam mailem po ${DEADLINE}.</p>
-       <p class="hint">Chcesz coś zmienić? Wypełnij jeszcze raz – liczy się ostatnia odpowiedź.</p></div>`;
+       <p>Odpowiedź zapisana. Termin i link do spotkania wyślę mailem po ${DEADLINE}.</p>
+       <p class="hint">Chcesz coś zmienić? <a href="">Wypełnij jeszcze raz</a> – liczy się ostatnia odpowiedź.</p></div>`;
   } catch (e) {
     err.textContent = 'Nie udało się wysłać. Sprawdź internet i spróbuj ponownie.';
     btn.disabled = false; btn.textContent = 'Wyślij odpowiedź';
